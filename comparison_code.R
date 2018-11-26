@@ -13,6 +13,7 @@ election_data_settings <- locale(date_names = "fi", date_format = "%AD",
 
 # Reading up the different .csv datafiles into tibbles/dataframes,
 # using read_csv2 since fields are separated by semicolons
+
 parliamentary_by_candidate_raw <- read_csv2('e-2015_ehd_01.csv', col_names = FALSE,
                                         locale = election_data_settings)
                                     
@@ -26,10 +27,12 @@ municipal_by_area_raw <- read_csv2('kv-2017_taat_maa.csv', col_names = FALSE,
                                locale = election_data_settings)
 
 
-# 
 parliamentary_by_area <- parliamentary_by_area_raw %>%
+  # Selecting the variables relevant for making the comparisons
   select(area_name = X10, area_number = X5, area_vote_total = X66) %>%
-  # 
+  # Dropping the last character from voting area codes so that they
+  # can be aggregated by their common numerical designator, also
+  # converting vote totals from strings to integers
   mutate(area_number = substr(area_number, 1, nchar(area_number)-1),
          area_vote_total = as.integer(area_vote_total))
 
@@ -42,6 +45,8 @@ parliamentary_candidate_data <- parliamentary_by_candidate_raw %>%
 
 
 
+# Making the corresponding selections and conversions for
+# the municipal elections data
 
 municipal_by_area <- municipal_by_area_raw %>%
   select(area_name = X10, area_number = X5, area_vote_total = X66) %>%
