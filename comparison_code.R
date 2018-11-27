@@ -37,17 +37,25 @@ parliamentary_by_area <- parliamentary_by_area_raw %>%
          area_vote_total = as.integer(area_vote_total))
 
 parliamentary_candidate_data <- parliamentary_by_candidate_raw %>%
+  # Filtering for the candidate of interest, also excluding total
+  # counts for all of the voting district included in the raw data
   filter(X18 == '[Candidate_first_name]' & X19 == '[Candidate_last_name]' &
          X16 != 'Helsinki' & X16 != 'Helsingin vaalipiiri') %>%
+  # Creating a single name variable from the first and last name
+  # columns plus converting vote totals to integers as above
   mutate(candidate_name = paste(X18, X19, sep = " "),
          candidate_vote_total = as.integer(X35)) %>%
+  # Selecting the variables relevant for making the comparisons
   select(candidate_name, area_name = X16, candidate_vote_total)
 
+# Joining the two dataframes together
+parliamentary_combined <- left_join(parliamentary_candidate_data, 
+                                    parliamentary_by_area,
+                                    by = 'area_name')
 
 
-# Making the corresponding selections and conversions for
-# the municipal elections data
-
+# Making the corresponding selections, conversions and joins
+# for the municipal elections data
 municipal_by_area <- municipal_by_area_raw %>%
   select(area_name = X10, area_number = X5, area_vote_total = X66) %>%
   mutate(area_number = substr(area_number, 1, nchar(area_number)-1),
@@ -59,3 +67,20 @@ municipal_candidate_data <- municipal_by_candidate_raw %>%
   mutate(candidate_name = paste(X18, X19, sep = " "),
          candidate_vote_total = as.integer(X35)) %>%
   select(candidate_name, area_name = X16, candidate_vote_total)
+
+municipal_combined <- left_join(municipal_candidate_data,
+                                municipal_by_area,
+                                by = 'area_name')
+
+
+parliamentary_combined %>%
+  group_by(area_number) %>%
+  summarize(area_sums = sum(area_vote_total), candidate_sums = sum(candidate_vote_total),
+            area_pct = candidate_sums / area_sums * 100) %>%
+  arrange(desc(candidate_sums))
+
+municipal_combined %>%
+  group_by(area_number) %>%
+  summarize(area_sums = sum(area_vote_total), candidate_sums = sum(candidate_vote_total),
+            area_pct = candidate_sums / area_sums * 100) %>%
+  arrange(desc(candidate_sums))
