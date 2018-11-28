@@ -73,6 +73,10 @@ municipal_combined <- left_join(municipal_candidate_data,
                                 by = 'area_name')
 
 
+# Making the area-wise vote sum comparisons both sets
+# of the data, with calculations of candidate's
+# percentage of total votes for each area included
+
 parliamentary_combined %>%
   group_by(area_number) %>%
   summarize(area_sums = sum(area_vote_total), candidate_sums = sum(candidate_vote_total),
