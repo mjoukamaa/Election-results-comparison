@@ -1,6 +1,8 @@
 # Loading up the tidyverse library
 # for easier data handling
 library(tidyverse)
+library(shiny)
+library(shinythemes)
 
 
 # Setting up a locale variable for read_csv2() to handle
@@ -32,6 +34,15 @@ municipal_by_candidate_raw <- read_csv2('kv-2017_teat_maa.csv', col_names = FALS
 # smaller size; records from other municipalities are filtered out later
 municipal_by_area_raw <- read_csv2('kv-2017_taat_maa.csv', col_names = FALSE,
                                locale = election_data_settings)
+
+
+parliamentary_candidate_list <- parliamentary_by_candidate_raw %>%
+  select(parl_first_name = X18, parl_last_name = X19)
+  mutate(parl_full_name = paste(X18, X19, sep = " ")
+  
+municipal_candidate_list <- municipal_by_candidate_raw %>%
+  select(munip_first_name = X18, munip_last_name = X19)
+  mutate(munip_full_name = paste(X18, X19, sep = " ")
 
 
 parliamentary_by_area <- parliamentary_by_area_raw %>%
